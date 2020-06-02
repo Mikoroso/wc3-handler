@@ -1,5 +1,7 @@
 Handles = {
 
+    MaxCounter = 40,
+
     Useful = {
         Timer = {}
     },
@@ -10,6 +12,7 @@ Handles = {
 
 }
 
+function msg(text) DisplayTimedTextToForce(GetPlayersAll(), 5., text) end
 
 -- **Creates or use paused timer from Wseless.Timer table
 -- @returns | timer
@@ -18,11 +21,11 @@ function NewTimer()
     local timer
 
     if #useless > 0 then
-        --msg("Use past timer")
+        -- msg("Use past timer")
         timer = useless[#useless]
         useless[#useless] = nil
     else
-        --msg("Create New Timer")
+        -- msg("Create New Timer")
         timer = CreateTimer()
     end
 
@@ -45,13 +48,18 @@ function CleanTimer(timer)
             local last = useful[#useful]
             local uselessTimer = useful[i]
 
-            --msg("Timer with index :" .. i .. " was removed")
+            -- msg("Timer with index :" .. i .. " was removed")
             useful[i] = last
             useful[#useful] = nil
 
-            table.insert(Handles.Useless.Timer, uselessTimer)
+            if #Handles.Useless.Timer <= Handles.MaxCounter then
+                table.insert(Handles.Useless.Timer, uselessTimer)
+            else 
+                DestroyTimer(timer) 
+            end
 
             break
+
         end
     end
 end
