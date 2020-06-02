@@ -8,126 +8,73 @@ Handles = {
 
     Useless = {
         Timer = {}
+    },
+
+    Clean = {
+
+        Timer = function (timer)
+            PauseTimer(timer)
+        end,
+
+        Group = function (group)
+            GroupClear(group)
+        end,
+
+        Trigger = function (trig)
+            TriggerClearActions(trig)
+        end
+
     }
-
-
 
 }
 
-function msg(text) DisplayTimedTextToForce(GetPlayersAll(), 5., text) end
-
-function CreateObject(text) 
-    local func = "Create" .. text
-    return func()
-end
-
-CreateObject(Group)
-
-
-
--- **Creates or use paused timer from Wseless.Timer table
--- @returns | timer
-function NewTimer()
-    local useless = Handles.Useless.Timer
-    local timer
-
-    if #useless > 0 then
-        -- msg("Use past timer")
-        timer = useless[#useless]
-        useless[#useless] = nil
-    else
-        -- msg("Create New Timer")
-        timer = CreateTimer()
-    end
-
-    table.insert(Handles.Useful.Timer,timer)
-
-    return timer
-end
-
--- **Pause and Replace timer to Useless
--- @params  | target timer
-function CleanTimer(timer)
-    local useful = Handles.Useful.Timer
-
-    PauseTimer(timer)
-
-    for i = 1, #useful do
-
-        if timer == useful[i] then
-
-            local last = useful[#useful]
-            local uselessTimer = useful[i]
-
-            -- msg("Timer with index :" .. i .. " was removed")
-            useful[i] = last
-            useful[#useful] = nil
-
-            if #Handles.Useless.Timer <= Handles.MaxCounter then
-                table.insert(Handles.Useless.Timer, uselessTimer)
-            else 
-                DestroyTimer(timer) 
-            end
-
-            break
-
-        end
-    end
-end
-
-
-
--- **Creates or use cleaned group from Wseless.Timer table
--- @returns | group
-function NewGroup(objtype)
-    --local useless = Handles.Useless
-    --local useful = Handles.Useful
-
-    --useless = useless[objtype]
-    --useful = useful[objtype]
-
-
-
-
-    local useless = Handles.Useless.Group
+-- **Creates or use useless object from Handles.Useless table
+-- @params | object type
+-- @returns | object
+function New(type)
+    local useless = Handles.Useless[type]
+    local useful = Handles.Useful[type]
     local object
 
     if #useless > 0 then
-        -- msg("Use past timer")
+        -- msg("Launch Useless " .. type)
         object = useless[#useless]
         useless[#useless] = nil
     else
         -- msg("Create New Timer")
-        object = CreateGroup()
+        object = loadstring("Create" .. type)()
     end
 
-    table.insert(Handles.Useful.Group,object)
+    table.insert(useful,object)
 
     return object
 end
 
--- **Clean and Replace group to Useless
--- @params | target group
-function CleanGroup(object)
-    local useful = Handles.Useful.Group
 
-    CleanGroup(object)
+-- **Clean and Replave/Remove handle
+-- @params | object type
+-- @params | object
+function Clean(type,object)
+    local useless = Handles.Useless[type]
+    local useful = Handles.Useful[type]
+
+    Handles.Clean[type](object)
 
     for i = 1, #useful do
 
         if object == useful[i] then
 
             local last = useful[#useful]
-            local uselessObject = useful[i]
+            local uselessObj = useful[i]
 
             -- msg("Timer with index :" .. i .. " was removed")
             useful[i] = last
             useful[#useful] = nil
 
-            if #Handles.Useless.Group <= Handles.MaxCounter then
-                table.insert(Handles.Useless.Group, uselessObject)
+            if #useless <= Handles.MaxCounter then
+                table.insert(useless, uselessObj)
             else 
-                DestroyGroup(object) 
+                Handles.Clean[type](object)
             end
 
             break
