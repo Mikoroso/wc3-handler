@@ -1,6 +1,6 @@
 Handles = {
 
-    MaxCounter = 40,
+    MaxCounter = 40, -- How many useless object can be on each Handles.Useless."type"
 
     Useful = {
         Timer = {}
