@@ -35,6 +35,10 @@ Handles = {
     Create = {
         Image = function (i) 
             return BlzCreateSimpleFrame("NWU_SimpleImageFrame", fr.Parent, i)
+        end,
+
+        Text = function (i) 
+            return BlzCreateSimpleFrame("NWU_SimpleStringFrame", fr.Parent, i)
         end
     },
 
@@ -48,15 +52,41 @@ Handles = {
             ShowFrame           (frame)
             BlzFrameSetParent   (frame, fr.Parent)
             BlzFrameSetSize     (frame, params.width*0.0005, params.height*0.0005)
-            BlzFrameSetAbsPoint (frame, FRAMEPOINT_BOTTOM, params.x*0.0005, params.y*0.0005)
+            BlzFrameSetXY       (frame, params.x, params.y)
             BlzFrameSetTexture  (BlzGetFrameByName("NWU_SimpleImageTexture",id), params.texture, 0, true)
             BlzFrameSetLevel    (frame, params.tier)
         
+            return frame
+        end,
+
+        Text = function (framedata,params)
+            local frame = framedata[1]
+            local id = framedata[2]
+            local textframe = BlzGetFrameByName("NWU_SimpleStringText",id)
+
+            table.insert(Handles.Useful.Text, framedata)
+
+            ShowFrame               (frame)
+            BlzFrameSetParent       (frame, fr.Parent)
+            BlzFrameClearAllPoints  (frame)
+            BlzFrameSetSize         (frame, params.width*0.0005, params.height*0.0005)
+            BlzFrameSetXY           (frame, params.x, params.y)
+            BlzFrameSetLevel        (frame, params.tier)
+
+            BlzFrameSetAllPoints    (textframe, frame)
+            BlzFrameSetText         (textframe, params.text)
+            BlzFrameSetFont         (textframe, "Font-AnimeAce.ttf", params.fontscale, 1)
+            BlzFrameSetTextAlignment(textframe, TEXT_JUSTIFY_TOP,    params.align)
+
             return frame
         end
     }
 
 }
+
+function HideFrame  (frame)     BlzFrameSetVisible(frame, false) end
+function ShowFrame  (frame)     BlzFrameSetVisible(frame, true) end
+function SetFrameXY (frame,x,y) BlzFrameSetAbsPoint(frame, FRAMEPOINT_BOTTOM, x * 0.0005, y * 0.0005) end
 
 -- **Creates or use useless object from Handles.Useless table
 -- @params | object type
@@ -155,8 +185,6 @@ function CleanFrame(type, ...)
 
             msg("Remove" .. framename)
 
-            --CleanFrame(t_useful[i][1])
-
             -- this
             table.insert(t_useless, t_useful[i]) 
  
@@ -166,8 +194,8 @@ function CleanFrame(type, ...)
             if i ~= #t_useful then
                 local last = t_useful[#t_useful]
                 t_useful[i] = last
-                --t_useful[#t_useful] = nil
             end
+
             t_useful[i] = nil
 
         end
