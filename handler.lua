@@ -3,11 +3,17 @@ Handles = {
     MaxCounter = 40, -- How many useless object can be on each Handles.Useless."type"
 
     Useful = {
-        Timer = {}
+        Image = {},
+        Timer = {},
+        Group = {},
+        Trigger = {}
     },
 
     Useless = {
-        Timer = {}
+        Image = {},
+        Timer = {},
+        Group = {},
+        Trigger = {}
     },
 
     Clean = {
@@ -24,6 +30,30 @@ Handles = {
             TriggerClearActions(trig)
         end
 
+    },
+
+    Create = {
+        Image = function (i) 
+            return BlzCreateSimpleFrame("NWU_SimpleImageFrame", fr.Parent, i)
+        end
+    },
+
+    Modify = {
+        Image = function (framedata,params)
+            local frame = framedata[1]
+            local id = framedata[2]
+        
+            table.insert(Handles.Useful.Image, framedata)
+        
+            ShowFrame           (frame)
+            BlzFrameSetParent   (frame, fr.Parent)
+            BlzFrameSetSize     (frame, params.width*0.0005, params.height*0.0005)
+            BlzFrameSetAbsPoint (frame, FRAMEPOINT_BOTTOM, params.x*0.0005, params.y*0.0005)
+            BlzFrameSetTexture  (BlzGetFrameByName("NWU_SimpleImageTexture",id), params.texture, 0, true)
+            BlzFrameSetLevel    (frame, params.tier)
+        
+            return frame
+        end
     }
 
 }
@@ -42,7 +72,7 @@ function New(type)
         useless[#useless] = nil
     else
         -- msg("Create New Timer")
-        object = loadstring("Create" .. type)()
+        object = _G["Create" .. type]()
     end
 
     table.insert(useful,object)
@@ -81,4 +111,102 @@ function Clean(type,object)
 
         end
     end
+end
+
+
+-- ************************************************
+-- Used for get frame for future work
+-- @params      | string with frame type(Image,Text,Button)
+-- @params      | strings with groups accept for clean ex:("Dialog Part", "Heropick Part", ...)
+function CleanFrame(type, ...)
+    local t_useless = Handles.Useless[type]
+    local t_useful = Handles.Useful[type]
+    local length = #t_useful
+
+    msg("Before Iterations, length = " .. length)
+    for i = #t_useful, 1, -1 do
+        local isUseless = false
+        local framename = t_useful[i][3]
+        
+        msg("index = " .. i .. ", length = " .. #t_useful.. ", lengthless = " .. #t_useless)
+
+        if framename ~= nil then msg(framename) end
+
+        for k, value in ipairs({...}) do
+
+            if framename == value then
+                msg("its useless")
+                isUseless = true
+
+                break 
+            end
+        
+        end
+
+        
+        if isUseless then
+
+            (function ()
+                local frame = t_useful[i][1]
+                HideFrame           (frame)
+                BlzFrameSetSize     (frame, 10*0.0005, 10*0.0005)
+                BlzFrameSetAbsPoint (frame, FRAMEPOINT_BOTTOM, -2000*0.0005, 10*0.0005)
+            end)()
+
+            msg("Remove" .. framename)
+
+            --CleanFrame(t_useful[i][1])
+
+            -- this
+            table.insert(t_useless, t_useful[i]) 
+ 
+            -- same as ???
+            --t_useless:insert(t_useful[i])
+            
+            if i ~= #t_useful then
+                local last = t_useful[#t_useful]
+                t_useful[i] = last
+                --t_useful[#t_useful] = nil
+            end
+            t_useful[i] = nil
+
+        end
+
+    end
+
+    msg("number of start elements" .. length)
+end
+
+
+
+
+-- ************************************************
+-- Used for get frame for future work
+-- @params      | string
+-- @params      | string with group name
+-- @params      | table with frame XYWH and another data
+-- @returns     | frame
+function NewFrame(type,name,frameparams)
+    local useless = Handles.Useless[type]
+    local useful = Handles.Useful[type]
+    local t  
+    local frame
+    
+    if #useless > 0 then
+        msg("Use Useless Image")
+        t = table.remove(useless)
+    else
+        msg("Creates New Image")
+        local i = #useful + #useless + 1
+        frame = Handles.Create[type](i)       --BlzCreateSimpleFrame("NWU_SimpleImageFrame", fr.Parent, i)
+
+        t = {frame,i}    --Handles.Create[type]()
+
+        msg("Creates New Image")
+    end
+
+    t[3] = name
+    frame = Handles.Modify[type](t,frameparams)
+
+    return frame
 end
