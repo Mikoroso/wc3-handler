@@ -97,27 +97,13 @@ Handles = {
             local id = framedata[2]
         
             table.insert(Handles.Useful.Image, framedata)
-
-            msg(params.x)
-            msg(params.y)
-            msg(params.width)
-            msg(params.height)
-            msg(params.texture)
-            msg(params.tier)
         
             ShowFrame           (frame)
-            msg("m?")
             BlzFrameSetParent   (frame, fr.Parent)
-            msg("m2?")
             BlzFrameSetSize     (frame, params.width*0.0005, params.height*0.0005)
-            msg("m2?")
             SetFrameXY       (frame, params.x, params.y)
-            msg("m2?")
             BlzFrameSetTexture  (BlzGetFrameByName("NWU_SimpleImageTexture",id), params.texture, 0, true)
-            msg("m2?")
             BlzFrameSetLevel    (frame, params.tier)
-
-            msg("m?")
         
             return frame
         end,
