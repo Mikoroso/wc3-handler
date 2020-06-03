@@ -1,9 +1,48 @@
+FrameData = {
+
+    -- **Dialog** --
+    Dialog = {
+
+        -- **Images** --
+        imgBackground = {
+            x = 800,
+            y = 0,
+            width = 2140,
+            height = 1200,
+            texture = "UI-Dialog[BG].tga",
+            tier = 1
+        },
+
+        imgTextplace = {
+            x = 800,
+            y = -256,
+            width = 1500,
+            height = 375,
+            texture = "UI-Dialog[TextPlace].blp",
+            tier = 3
+        },
+
+        imgSpeaker = {
+            x = 1200,
+            y = -512,
+            width = 512,
+            height = 512,
+            texture = "UI-Dialog[Iruka].blp",
+            tier = 2
+        }
+    }
+
+}
+
+
 Handles = {
 
     MaxCounter = 40, -- How many useless object can be on each Handles.Useless."type"
 
     Useful = {
         Image = {},
+        Text = {},
+        Button = {},
         Timer = {},
         Group = {},
         Trigger = {}
@@ -11,6 +50,8 @@ Handles = {
 
     Useless = {
         Image = {},
+        Text = {},
+        Button = {},
         Timer = {},
         Group = {},
         Trigger = {}
@@ -39,10 +80,16 @@ Handles = {
 
         Text = function (i) 
             return BlzCreateSimpleFrame("NWU_SimpleStringFrame", fr.Parent, i)
+        end,
+
+        Button = function (i) 
+            return InitFrameButton(i, BlzCreateFrame("GlowButton", fr.Parent, 0, i))
         end
+        
     },
 
     Modify = {
+
         Image = function (framedata,params)
             local frame = framedata[1]
             local id = framedata[2]
@@ -58,6 +105,7 @@ Handles = {
         
             return frame
         end,
+
 
         Text = function (framedata,params)
             local frame = framedata[1]
@@ -79,7 +127,49 @@ Handles = {
             BlzFrameSetTextAlignment(textframe, TEXT_JUSTIFY_TOP,    params.align)
 
             return frame
-        end
+        end, 
+
+
+        Button = function (framedata,params)
+            local frame = framedata[1]
+            local id = framedata[2]
+            local textframe = BlzGetFrameByName("GlowButtonText",id)
+            local blpType = string.sub(params.texture,1,3)
+
+            local texturelib = {}
+                  texturelib["UI-"] = {    --For custom set
+                      "ReplaceableTextures\\CommandButtons\\",
+                      "ReplaceableTextures\\DisabledCommandButtons\\PUSH",
+                      "ReplaceableTextures\\DisabledCommandButtons\\DIS"
+                  }
+                  texturelib["BTN"] = {"", "", ""}
+                  texturelib["Rep"] = {"", "", ""} --for typical wc3 iconpath
+
+
+            table.insert(Handles.Useful.Button, framedata)
+
+
+            ShowFrame               (frame)
+            BlzFrameSetParent       (frame, fr.Parent)
+            BlzFrameSetSize         (frame, params.width*0.0005, params.height*0.0005)
+            BlzFrameSetXY           (frame, params.x, params.y)
+
+            --Set Active Button Icon path and chained with main Frame
+            BlzFrameSetTexture(BlzGetFrameByName("GlowButtonBackdrop", id), texturelib[blpType][2] + params.texture, 0, true)
+            BlzFrameSetAllPoints(BlzGetFrameByName("GlowButtonBackdrop", id), fr)
+            --Set Pushed Button Icon path and chained with main Frame
+            BlzFrameSetTexture(BlzGetFrameByName("GlowButtonPushedBackdrop", id), texturelib[blpType][2] + params.texture, 0, true)
+            BlzFrameSetAllPoints(BlzGetFrameByName("GlowButtonPushedBackdrop", id), fr)
+            --Set Icon path and chained with main Frame
+            BlzFrameSetTexture(BlzGetFrameByName("GlowButtonDisabledBackdrop", id), texturelib[blpType][3] + params.texture, 0, true)
+            BlzFrameSetAllPoints(BlzGetFrameByName("GlowButtonDisabledBackdrop", id), fr)
+
+            BlzFrameSetFont         (textframe, "Font-AnimeAce.ttf", 0.011, 1)
+            BlzFrameSetText         (textframe, params.text)
+
+            return frame
+        end, 
+
     }
 
 }
@@ -238,3 +328,12 @@ function NewFrame(type,name,frameparams)
 
     return frame
 end
+
+
+-- ***For For Create Frame use this command
+-- call NewFrame("Image", "Dialog Part", FrameData.Heropick.imgBackground)
+-- call NewFrame("Image", "Dialog Part", FrameData.Heropick.imgTextplace)
+
+-- ***For clean use
+-- call CleanFrame("Image", "Dialog Part")
+-- removes first 2 frames
