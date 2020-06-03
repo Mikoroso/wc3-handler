@@ -75,6 +75,7 @@ Handles = {
 
     Create = {
         Image = function (i) 
+            msg("okey im create")
             return BlzCreateSimpleFrame("NWU_SimpleImageFrame", fr.Parent, i)
         end,
 
@@ -91,17 +92,32 @@ Handles = {
     Modify = {
 
         Image = function (framedata,params)
+            msg("Cince it")
             local frame = framedata[1]
             local id = framedata[2]
         
             table.insert(Handles.Useful.Image, framedata)
+
+            msg(params.x)
+            msg(params.y)
+            msg(params.width)
+            msg(params.height)
+            msg(params.texture)
+            msg(params.tier)
         
             ShowFrame           (frame)
+            msg("m?")
             BlzFrameSetParent   (frame, fr.Parent)
+            msg("m2?")
             BlzFrameSetSize     (frame, params.width*0.0005, params.height*0.0005)
-            BlzFrameSetXY       (frame, params.x, params.y)
+            msg("m2?")
+            SetFrameXY       (frame, params.x, params.y)
+            msg("m2?")
             BlzFrameSetTexture  (BlzGetFrameByName("NWU_SimpleImageTexture",id), params.texture, 0, true)
+            msg("m2?")
             BlzFrameSetLevel    (frame, params.tier)
+
+            msg("m?")
         
             return frame
         end,
@@ -118,7 +134,7 @@ Handles = {
             BlzFrameSetParent       (frame, fr.Parent)
             BlzFrameClearAllPoints  (frame)
             BlzFrameSetSize         (frame, params.width*0.0005, params.height*0.0005)
-            BlzFrameSetXY           (frame, params.x, params.y)
+            SetFrameXY              (frame, params.x, params.y)
             BlzFrameSetLevel        (frame, params.tier)
 
             BlzFrameSetAllPoints    (textframe, frame)
@@ -148,11 +164,11 @@ Handles = {
 
             table.insert(Handles.Useful.Button, framedata)
 
-
+            
             ShowFrame               (frame)
             BlzFrameSetParent       (frame, fr.Parent)
             BlzFrameSetSize         (frame, params.width*0.0005, params.height*0.0005)
-            BlzFrameSetXY           (frame, params.x, params.y)
+            SetFrameXY              (frame, params.x, params.y)
 
             --Set Active Button Icon path and chained with main Frame
             BlzFrameSetTexture(BlzGetFrameByName("GlowButtonBackdrop", id), texturelib[blpType][2] + params.texture, 0, true)
@@ -241,9 +257,7 @@ end
 function CleanFrame(type, ...)
     local t_useless = Handles.Useless[type]
     local t_useful = Handles.Useful[type]
-    local length = #t_useful
 
-    msg("Before Iterations, length = " .. length)
     for i = #t_useful, 1, -1 do
         local isUseless = false
         local framename = t_useful[i][3]
@@ -274,12 +288,7 @@ function CleanFrame(type, ...)
             end)()
 
             msg("Remove" .. framename)
-
-            -- this
             table.insert(t_useless, t_useful[i]) 
- 
-            -- same as ???
-            --t_useless:insert(t_useful[i])
             
             if i ~= #t_useful then
                 local last = t_useful[#t_useful]
@@ -292,7 +301,6 @@ function CleanFrame(type, ...)
 
     end
 
-    msg("number of start elements" .. length)
 end
 
 
@@ -311,16 +319,14 @@ function NewFrame(type,name,frameparams)
     local frame
     
     if #useless > 0 then
-        msg("Use Useless Image")
+        -- msg("Use Useless Image")
         t = table.remove(useless)
     else
-        msg("Creates New Image")
+        -- msg("Creates New Image")
         local i = #useful + #useless + 1
         frame = Handles.Create[type](i)       --BlzCreateSimpleFrame("NWU_SimpleImageFrame", fr.Parent, i)
 
         t = {frame,i}    --Handles.Create[type]()
-
-        msg("Creates New Image")
     end
 
     t[3] = name
